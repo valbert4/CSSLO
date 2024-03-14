@@ -46,8 +46,8 @@ def Gcdex(a,b,N,check=False):
         return True
     if check is not False:
         (g,s,t,u,v) = check
-        result = (s * a + t * b) % N == g 
-        result &= (u * a + v * b) % N == 0 
+        result = (s * a + t * b) % N == g
+        result &= (u * a + v * b) % N == 0
         result &= (s * v - t * u) % N == 1
         return result
     s = 0
@@ -97,7 +97,7 @@ def Split(a,N,check=False):
     a = a % N
     if a == 0:
         return 1
-    r = np.int(np.ceil(np.log2(np.log2(N)))) if N > 1 else 1
+    r = int(np.ceil(np.log2(np.log2(N)))) if N > 1 else 1
     for i in range(r):
         a = a*a % N
     return N // np.gcd(a,N)
@@ -106,7 +106,7 @@ def Factorize(a):
     '''Factorise integer a>0.'''
     f = []
     m = []
-    for x in range(2,np.int(np.ceil(a ** 0.5)+1)):
+    for x in range(2,int(np.ceil(a ** 0.5)+1)):
         if a % x == 0:
             i = 0
             f.append(x)
@@ -119,7 +119,7 @@ def Factorize(a):
 def Factors(a):
     '''List of factors of a.'''
     f = set()
-    for x in range(2,np.int(np.ceil(a ** 0.5)+1)):
+    for x in range(2,int(np.ceil(a ** 0.5)+1)):
         if a % x == 0:
             f.add(x)
             f.add(a //x)
@@ -136,7 +136,7 @@ def PrimeNumbers(a):
         isPrime = True
         xi = 2 * x + 1
         i = 0
-        maxi = np.int(np.ceil(xi ** 0.5))
+        maxi = int(np.ceil(xi ** 0.5))
         while isPrime and i < len(f):
             isPrime = xi % f[i] > 0
             i += 1
@@ -180,7 +180,7 @@ def BinaryTest(f,N=False):
     if N is False:
         N = np.random.randint(2,20)
     print('Testing',f,'N=',N)
-    temp = [['a','c','Check']]    
+    temp = [['a','c','Check']]
     for a in range(N):
         for b in range(N):
             check = f(a,b,N)
@@ -193,13 +193,13 @@ def BinaryTest(f,N=False):
             print(ZMat2str(r))
     else:
         print("All OK")
-        
+
 def UnaryTest(f,N=False):
     '''Test unary Ring function f.'''
     if N is False:
         N = np.random.randint(2,20)
     print('Testing',f,'N=',N)
-    temp = [['a','c','Check']]    
+    temp = [['a','c','Check']]
     for a in range(N):
         check = f(a,N)
         r = f(a,N,check)
@@ -221,7 +221,7 @@ def TestRingOps(N=False):
         BinaryTest(f,N)
     Unaries = [Ann,Split,Unit]
     for f in Unaries:
-        UnaryTest(f,N)    
+        UnaryTest(f,N)
 
 #######################################
 ####   Howell Matrix Form          ####
@@ -233,7 +233,7 @@ def doOperation(A,opData,N=1):
     ## swap rows A[j], A[m]
     if op == 's':
         (j,m) = data
-        # A[[j,m]] = A[[m,j]] 
+        # A[[j,m]] = A[[m,j]]
         A[j],A[m] = A[m],A[j]
 
     ## eliminate rows j,m using GCDex
@@ -250,7 +250,7 @@ def doOperation(A,opData,N=1):
         (j,m,c) = data
         A[m] = np.mod(A[m] + c * A[j],N)
 
-    ## replace A[j] with c * A[j] 
+    ## replace A[j] with c * A[j]
     ## valid only where c is a unit
     if op == 'm':
         (j,c) = data
@@ -323,7 +323,7 @@ def prepHowRes(A,z):
     '''Convert A into form 1|0//0|A for use in HowRes function.'''
     B = np.vstack([z,A])
     B = np.hstack([ZMatZeros((len(B),1)),B])
-    B[0,0] = 1 
+    B[0,0] = 1
     return B
 
 def HowRes(A,z,N,retro=False):
@@ -332,7 +332,7 @@ def HowRes(A,z,N,retro=False):
     H,rowops = How(B,N)
     if retro:
         return H[0,1:], rowops
-    return H[0,1:]    
+    return H[0,1:]
 
 def doOperations(A,rowops,N):
     '''Perform a series of row operations rowops on A modulo N'''
@@ -364,13 +364,13 @@ def How(A,N,reduced=True):
                x = Unit(B[r][c],N)
                if(x > 1):
                     rowops.append(('m',(r,x)))
-                    B = doOperation(B,rowops[-1],N)            
+                    B = doOperation(B,rowops[-1],N)
                ## eliminate entries in column c below row r
                for j in range(r+1,m):
                     if B[j][c] % N > 0:
                          (g,s,t,u,v) = Gcdex(B[r][c],B[j][c],N)
                          rowops.append(('u',(r,j,s,t,u,v)))
-                         B = doOperation(B,rowops[-1],N)  
+                         B = doOperation(B,rowops[-1],N)
                ## ensure entries in column c above row r are less than B[r][c]
                b = B[r][c]
                for j in range(r):
@@ -379,14 +379,14 @@ def How(A,N,reduced=True):
                          if x is None:
                              print('Quo(B[j][c],b,N)',B[j][c],b,N,x)
                          rowops.append(('a',(r,j,-x)))
-                         B = doOperation(B,rowops[-1],N)                
+                         B = doOperation(B,rowops[-1],N)
                ## Multiplying by x = Ann(b) eliminates b = B[r][c], but rest of the row may be non-zero
                ## If x > 0 then b is a zero divisor and we add a row
                ## If x == 0, b is a unit and we move to the next value of l
                x = Ann(b,N)
                if x > 0:
                     rowops.append(('n',(r,x)))
-                    B = doOperation(B,rowops[-1],N)  
+                    B = doOperation(B,rowops[-1],N)
                     m = len(B)
                r +=1
      H = RemoveZeroRows(ZMat(B,n))
@@ -406,8 +406,8 @@ class NSpace:
         self.At = np.transpose(A)
         self.N = N
         self.m = len(A)
-        self.n = len(A[0]) if self.m > 0 else 0  
-        self.getVal('H')   
+        self.n = len(A[0]) if self.m > 0 else 0
+        self.getVal('H')
 
     def getVal(self,a):
         '''Check if a matrix form has been calculated. If not, calculate and store it. Return the required value.'''
@@ -424,13 +424,13 @@ class NSpace:
             self.S, self.K = GetUK(self.At,self.T,self.opsT,self.N)
 
         return getattr(self,a)
-        
+
     def simplifyKer(self):
         '''Convert kernel to Howell form.'''
         self.getVal('K')
         self.K,ops = How(self.K,self.N)
         if isZero(self.K):
-            self.K = ZMatZeros((1,self.n))                
+            self.K = ZMatZeros((1,self.n))
 
     def makeOffset(self,b,check=False):
         '''solve Ax = b modulo N'''
@@ -449,7 +449,7 @@ class NSpace:
         d = self.checkOffset(b,c)
         # report(func_name(),'d',d)
         return c[0],d[0]
-    
+
     def checkOffset(self,b,c):
         '''Check solution Ac = b modulo N'''
         ## result is all zero if c is an exact solution
@@ -556,7 +556,7 @@ def nsIntersection(Alist,N):
     A = Alist[0]
     for B in Alist[1:]:
         AB = np.vstack([A,B])
-        nsp = NSpace(AB,N) 
+        nsp = NSpace(AB,N)
         nsp.getVal('Kt')
         C = matMul(nsp.Kt,np.vstack([A,np.zeros(B.shape,dtype=int)]),N)
         nsp = NSpace(C,N)
@@ -567,5 +567,5 @@ def nsUnion(Alist,N):
     '''Union of multiple rowspaces Alist modulo N'''
     if len(Alist) == 0:
         return False
-    nsp = NSpace(np.vstack(Alist),N) 
+    nsp = NSpace(np.vstack(Alist),N)
     return nsp.H
